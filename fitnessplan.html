@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitPlan Pro - Your Personal Fitness Journey</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .bmi-result {
+            text-align: center;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .underweight { background: linear-gradient(135deg, #74b9ff, #0984e3); color: white; }
+        .normal { background: linear-gradient(135deg, #00b894, #00a085); color: white; }
+        .overweight { background: linear-gradient(135deg, #fdcb6e, #e17055); color: white; }
+        .obese { background: linear-gradient(135deg, #e17055, #d63031); color: white; }
+
+        .workout-plan, .nutrition-plan {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .workout-day {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 12px;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .exercise {
+            background: #f8f9fa;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border-left: 3px solid #28a745;
+        }
+
+        .nutrition-section {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 12px;
+            border-left: 5px solid #28a745;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .macro-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .macro-item {
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 12px;
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 8px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+            transition: width 2s ease;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💪 FitPlan Pro</h1>
+            <p>Your Complete Fitness Journey Starts Here</p>
+        </div>
+
+        <!-- Survey Form -->
+        <div class="card" id="survey-form">
+            <h2>🎯 Personal Fitness Assessment</h2>
+            <form id="fitnessForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="age">Age</label>
+                        <input type="number" id="age" required min="16" max="100">
+                    </div>
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select id="gender" required>
+                            <option value="">Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="height">Height (cm)</label>
+                        <input type="number" id="height" required min="120" max="250">
+                    </div>
+                    <div class="form-group">
+                        <label for="weight">Current Weight (kg)</label>
+                        <input type="number" id="weight" required min="30" max="200" step="0.1">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="goal">Primary Fitness Goal</label>
+                    <select id="goal" required>
+                        <option value="">Select Your Goal</option>
+                        <option value="weight-loss">Weight Loss</option>
+                        <option value="lean-bulk">Lean Bulking</option>
+                        <option value="muscle-gain">Muscle Gain</option>
+                        <option value="maintenance">Maintain Current Weight</option>
+                        <option value="strength">Increase Strength</option>
+                        <option value="endurance">Build Endurance</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="activity-level">Current Activity Level</label>
+                    <select id="activity-level" required>
+                        <option value="">Select Activity Level</option>
+                        <option value="sedentary">Sedentary (little/no exercise)</option>
+                        <option value="lightly-active">Lightly Active (light exercise 1-3 days/week)</option>
+                        <option value="moderately-active">Moderately Active (moderate exercise 3-5 days/week)</option>
+                        <option value="very-active">Very Active (hard exercise 6-7 days/week)</option>
+                        <option value="extremely-active">Extremely Active (very hard exercise, physical job)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="experience">Exercise Experience</label>
+                    <select id="experience" required>
+                        <option value="">Select Experience Level</option>
+                        <option value="beginner">Beginner (0-6 months)</option>
+                        <option value="intermediate">Intermediate (6 months - 2 years)</option>
+                        <option value="advanced">Advanced (2+ years)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="target-weight">Target Weight (kg) - Optional</label>
+                    <input type="number" id="target-weight" min="30" max="200" step="0.1">
+                </div>
+
+                <div class="form-group">
+                    <label for="health-conditions">Health Conditions/Injuries (Optional)</label>
+                    <textarea id="health-conditions" rows="3" placeholder="Any injuries or health conditions we should consider..."></textarea>
+                </div>
+
+                <button type="submit" class="btn">Generate My Fitness Plan 🚀</button>
+            </form>
+        </div>
+
+        <!-- Results Section -->
+        <div class="card hidden" id="results">
+            <div id="bmi-section"></div>
+            <div id="workout-section"></div>
+            <div id="nutrition-section"></div>
+        </div>
+    </div>
+
+    <script>
+        let userData = {};
+
+        document.getElementById('fitnessForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Collect form data
+            userData = {
+                age: parseInt(document.getElementById('age').value),
+                gender: document.getElementById('gender').value,
+                height: parseInt(document.getElementById('height').value),
+                weight: parseFloat(document.getElementById('weight').value),
+                goal: document.getElementById('goal').value,
+                activityLevel: document.getElementById('activity-level').value,
+                experience: document.getElementById('experience').value,
+                targetWeight: parseFloat(document.getElementById('target-weight').value) || null,
+                healthConditions: document.getElementById('health-conditions').value
+            };
+
+            generateFitnessPlan();
+        });
+
+        function generateFitnessPlan() {
+            // Calculate BMI
+            const bmi = calculateBMI(userData.weight, userData.height);
+            
+            // Hide form and show results
+            document.getElementById('survey-form').classList.add('hidden');
+            document.getElementById('results').classList.remove('hidden');
+            
+            // Generate sections
+            displayBMI(bmi);
+            generateWorkoutPlan();
+            generateNutritionPlan();
+            
+            // Scroll to results
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function calculateBMI(weight, height) {
+            const heightInMeters = height / 100;
+            return weight / (heightInMeters * heightInMeters);
+        }
+
+        function getBMICategory(bmi) {
+            if (bmi < 18.5) return { category: 'underweight', text: 'Underweight' };
+            if (bmi < 25) return { category: 'normal', text: 'Normal Weight' };
+            if (bmi < 30) return { category: 'overweight', text: 'Overweight' };
+            return { category: 'obese', text: 'Obese' };
+        }
+
+        function displayBMI(bmi) {
+            const bmiCategory = getBMICategory(bmi);
+            const bmiSection = document.getElementById('bmi-section');
+            
+            bmiSection.innerHTML = `
+                <h2>📊 Your BMI Analysis</h2>
+                <div class="bmi-result ${bmiCategory.category}">
+                    <div>Your BMI: ${bmi.toFixed(1)}</div>
+                    <div>Category: ${bmiCategory.text}</div>
+                </div>
+            `;
+        }
+
+        function generateWorkoutPlan() {
+            const workouts = getWorkoutPlan(userData.goal, userData.experience);
+            const workoutSection = document.getElementById('workout-section');
+            
+            let workoutHTML = `
+                <h2>🏋️‍♂️ Your Personalized Workout Plan</h2>
+                <div class="workout-plan">
+                    <p><strong>Goal:</strong> ${getGoalDescription(userData.goal)}</p>
+                    <p><strong>Experience Level:</strong> ${userData.experience.charAt(0).toUpperCase() + userData.experience.slice(1)}</p>
+            `;
+
+            workouts.forEach((day, index) => {
+                workoutHTML += `
+                    <div class="workout-day">
+                        <h3>${day.name}</h3>
+                        <p><strong>Focus:</strong> ${day.focus}</p>
+                        <p><strong>Duration:</strong> ${day.duration}</p>
+                `;
+                
+                day.exercises.forEach(exercise => {
+                    workoutHTML += `
+                        <div class="exercise">
+                            <strong>${exercise.name}</strong><br>
+                            ${exercise.sets} | ${exercise.notes || ''}
+                        </div>
+                    `;
+                });
+                
+                workoutHTML += `</div>`;
+            });
+
+            workoutHTML += `
+                    <div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 10px;">
+                        <h4>💡 Important Tips:</h4>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>Always warm up for 5-10 minutes before exercising</li>
+                            <li>Rest 48-72 hours between training the same muscle groups</li>
+                            <li>Increase weights gradually (2.5-5kg per week)</li>
+                            <li>Listen to your body and adjust as needed</li>
+                            <li>Stay consistent for best results</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+            
+            workoutSection.innerHTML = workoutHTML;
+        }
+
+        function generateNutritionPlan() {
+            const nutrition = getNutritionPlan(userData);
+            const nutritionSection = document.getElementById('nutrition-section');
+            
+            nutritionSection.innerHTML = `
+                <h2>🥗 Your Personalized Nutrition Plan</h2>
+                <div class="nutrition-plan">
+                    <div class="nutrition-section">
+                        <h3>📈 Daily Caloric Needs</h3>
+                        <p><strong>Estimated TDEE:</strong> ${nutrition.tdee} calories/day</p>
+                        <p><strong>Target Calories:</strong> ${nutrition.targetCalories} calories/day</p>
+                        <p><strong>Goal:</strong> ${nutrition.calorieGoal}</p>
+                    </div>
+
+                    <div class="nutrition-section">
+                        <h3>🎯 Macronutrient Breakdown</h3>
+                        <div class="macro-breakdown">
+                            <div class="macro-item">
+                                <h4>Protein</h4>
+                                <div>${nutrition.macros.protein}g</div>
+                                <div>${nutrition.macros.proteinPercent}%</div>
+                            </div>
+                            <div class="macro-item">
+                                <h4>Carbs</h4>
+                                <div>${nutrition.macros.carbs}g</div>
+                                <div>${nutrition.macros.carbsPercent}%</div>
+                            </div>
+                            <div class="macro-item">
+                                <h4>Fats</h4>
+                                <div>${nutrition.macros.fats}g</div>
+                                <div>${nutrition.macros.fatsPercent}%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nutrition-section">
+                        <h3>🍽️ Meal Planning Guidelines</h3>
+                        ${nutrition.mealPlan}
+                    </div>
+
+                    <div class="nutrition-section">
+                        <h3>💊 Supplement Recommendations</h3>
+                        ${nutrition.supplements}
+                    </div>
+
+                    <div style="margin-top: 20px; padding: 15px; background: #e8f5e8; border-radius: 10px;">
+                        <h4>🌟 Nutrition Tips:</h4>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>Drink at least 2-3 liters of water daily</li>
+                            <li>Eat protein with every meal</li>
+                            <li>Time carbs around workouts for better performance</li>
+                            <li>Include healthy fats in every meal</li>
+                            <li>Eat plenty of vegetables and fruits</li>
+                            <li>Plan and prep meals in advance</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        function calculateTDEE(weight, height, age, gender, activityLevel) {
+            // Calculate BMR using Mifflin-St Jeor Equation
+            let bmr;
+            if (gender === 'male') {
+                bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+            } else {
+                bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+            }
+
+            // Activity multipliers
+            const multipliers = {
+                'sedentary': 1.2,
+                'lightly-active': 1.375,
+                'moderately-active': 1.55,
+                'very-active': 1.725,
+                'extremely-active': 1.9
+            };
+
+            return Math.round(bmr * multipliers[activityLevel]);
+        }
+
+        function getNutritionPlan(userData) {
+            const tdee = calculateTDEE(userData.weight, userData.height, userData.age, userData.gender, userData.activityLevel);
+            
+            let targetCalories, calorieGoal;
+            
+            switch(userData.goal) {
+                case 'weight-loss':
+                    targetCalories = Math.round(tdee - 500);
+                    calorieGoal = '500 calorie deficit for 1lb/week weight loss';
+                    break;
+                case 'lean-bulk':
+                    targetCalories = Math.round(tdee + 300);
+                    calorieGoal = '300 calorie surplus for lean muscle gain';
+                    break;
+                case 'muscle-gain':
+                    targetCalories = Math.round(tdee + 500);
+                    calorieGoal = '500 calorie surplus for muscle gain';
+                    break;
+                case 'strength':
+                    targetCalories = Math.round(tdee + 200);
+                    calorieGoal = 'Slight surplus to support strength gains';
+                    break;
+                default:
+                    targetCalories = tdee;
+                    calorieGoal = 'Maintenance calories';
+            }
+
+            // Calculate macros based on goal
+            let proteinPercent, carbsPercent, fatsPercent;
+            
+            if (['muscle-gain', 'lean-bulk', 'strength'].includes(userData.goal)) {
+                proteinPercent = 30;
+                carbsPercent = 40;
+                fatsPercent = 30;
+            } else if (userData.goal === 'weight-loss') {
+                proteinPercent = 35;
+                carbsPercent = 35;
+                fatsPercent = 30;
+            } else {
+                proteinPercent = 25;
+                carbsPercent = 45;
+                fatsPercent = 30;
+            }
+
+            const protein = Math.round((targetCalories * proteinPercent / 100) / 4);
+            const carbs = Math.round((targetCalories * carbsPercent / 100) / 4);
+            const fats = Math.round((targetCalories * fatsPercent / 100) / 9);
+
+            return {
+                tdee,
+                targetCalories,
+                calorieGoal,
+                macros: {
+                    protein,
+                    carbs,
+                    fats,
+                    proteinPercent,
+                    carbsPercent,
+                    fatsPercent
+                },
+                mealPlan: generateMealPlan(userData.goal),
+                supplements: generateSupplements(userData.goal)
+            };
+        }
+
+        function generateMealPlan(goal) {
+            const mealPlans = {
+                'weight-loss': `
+                    <p><strong>Breakfast:</strong> High protein breakfast (eggs, Greek yogurt, protein smoothie)</p>
+                    <p><strong>Lunch:</strong> Lean protein + vegetables + small portion complex carbs</p>
+                    <p><strong>Pre-workout:</strong> Small carb snack if needed</p>
+                    <p><strong>Post-workout:</strong> Protein shake + fruit</p>
+                    <p><strong>Dinner:</strong> Lean protein + plenty of vegetables + healthy fats</p>
+                `,
+                'lean-bulk': `
+                    <p><strong>Breakfast:</strong> Oats + protein powder + nuts + fruit</p>
+                    <p><strong>Mid-morning:</strong> Greek yogurt + berries</p>
+                    <p><strong>Lunch:</strong> Lean protein + rice/pasta + vegetables</p>
+                    <p><strong>Pre-workout:</strong> Banana + coffee</p>
+                    <p><strong>Post-workout:</strong> Protein shake + carbs</p>
+                    <p><strong>Dinner:</strong> Lean protein + sweet potato + vegetables + healthy fats</p>
+                `,
+                'muscle-gain': `
+                    <p><strong>Breakfast:</strong> Large portion oats + protein + nuts + fruit</p>
+                    <p><strong>Mid-morning:</strong> Protein shake + nuts</p>
+                    <p><strong>Lunch:</strong> Large portion lean protein + rice + vegetables</p>
+                    <p><strong>Pre-workout:</strong> Banana + dates</p>
+                    <p><strong>Post-workout:</strong> Large protein shake + carbs</p>
+                    <p><strong>Dinner:</strong> Large portion protein + pasta/rice + vegetables</p>
+                    <p><strong>Before bed:</strong> Casein protein or Greek yogurt</p>
+                `
+            };
+
+            return mealPlans[goal] || mealPlans['lean-bulk'];
+        }
+
+        function generateSupplements(goal) {
+            const supplements = {
+                'weight-loss': `
+                    <ul style="padding-left: 20px;">
+                        <li><strong>Whey Protein:</strong> 1-2 scoops daily to meet protein goals</li>
+                        <li><strong>Multivitamin:</strong> Daily to cover micronutrient needs</li>
+                        <li><strong>Omega-3:</strong> 1-2g daily for health and recovery</li>
+                        <li><strong>Green Tea Extract:</strong> Optional for metabolism support</li>
+                    </ul>
+                `,
+                'lean-bulk': `
+                    <ul style="padding-left: 20px;">
+                        <li><strong>Whey Protein:</strong> 1-2 scoops daily</li>
+                        <li><strong>Creatine Monohydrate:</strong> 5g daily for strength and size</li>
+                        <li><strong>Multivitamin:</strong> Daily</li>
+                        <li><strong>Omega-3:</strong> 1-2g daily</li>
+                        <li><strong>Vitamin D3:</strong> 2000-4000 IU daily</li>
+                    </ul>
+                `,
+                'muscle-gain': `
+                    <ul style="padding-left: 20px;">
+                        <li><strong>Whey Protein:</strong> 2-3 scoops daily</li>
+                        <li><strong>Creatine Monohydrate:</strong> 5g daily</li>
+                        <li><strong>Mass Gainer:</strong> 1 serving on training days if needed</li>
+                        <li><strong>Multivitamin:</strong> Daily</li>
+                        <li><strong>Omega-3:</strong> 2-3g daily</li>
+                        <li><strong>ZMA:</strong> Before bed for recovery</li>
+                    </ul>
+                `
+            };
+
+            return supplements[goal] || supplements['lean-bulk'];
+        }
+
+        function getWorkoutPlan(goal, experience) {
+            const workouts = {
+                'beginner-weight-loss': [
+                    {
+                        name: 'Day 1: Upper Body + Cardio',
+                        focus: 'Chest, Back, Shoulders, Arms',
+                        duration: '45-60 minutes',
+                        exercises: [
+                            { name: 'Push-ups (or assisted)', sets: '3 sets x 8-12 reps' },
+                            { name: 'Assisted Pull-ups', sets: '3 sets x 5-8 reps' },
+                            { name: 'Dumbbell Shoulder Press', sets: '3 sets x 8-12 reps' },
+                            { name: 'Dumbbell Rows', sets: '3 sets x 8-12 reps' },
+                            { name: 'Tricep Dips', sets: '3 sets x 8-12 reps' },
+                            { name: 'Cardio', sets: '20-30 minutes moderate intensity' }
+                        ]
+                    },
+                    {
+                        name: 'Day 2: Lower Body + Cardio',
+                        focus: 'Legs, Glutes',
+                        duration: '45-60 minutes',
+                        exercises: [
+                            { name: 'Bodyweight Squats', sets: '3 sets x 12-15 reps' },
+                            { name: 'Lunges', sets: '3 sets x 10 reps each leg' },
+                            { name: 'Glute Bridges', sets: '3 sets x 12-15 reps' },
+                            { name: 'Calf Raises', sets: '3 sets x 15-20 reps' },
+                            { name: 'Wall Sit', sets: '3 sets x 30-60 seconds' },
+                            { name: 'Cardio', sets: '20-30 minutes moderate intensity' }
+                        ]
+                    },
+                    {
+                        name: 'Day 3: Full Body + Cardio',
+                        focus: 'Total body conditioning',
+                        duration: '45-60 minutes',
+                        exercises: [
+                            { name: 'Burpees', sets: '3 sets x 5-8 reps' },
+                            { name: 'Mountain Climbers', sets: '3 sets x 20 reps' },
+                            { name: 'Plank', sets: '3 sets x 30-60 seconds' },
+                            { name: 'Jumping Jacks', sets: '3 sets x 30 seconds' },
+                            { name: 'Russian Twists', sets: '3 sets x 20 reps' },
+                            { name: 'Cardio', sets: '30-40 minutes steady state' }
+                        ]
+                    }
+                ],
+                'intermediate-lean-bulk': [
+                    {
+                        name: 'Day 1: Chest & Triceps',
+                        focus: 'Chest, Triceps',
+                        duration: '60-75 minutes',
+                        exercises: [
+                            { name: 'Barbell Bench Press', sets: '4 sets x 6-8 reps' },
+                            { name: 'Incline Dumbbell Press', sets: '3 sets x 8-10 reps' },
+                            { name: 'Dips', sets: '3 sets x 10-12 reps' },
+                            { name: 'Cable Flyes', sets: '3 sets x 10-12 reps' },
+                            { name: 'Close-Grip Bench Press', sets: '3 sets x 8-10 reps' },
+                            { name: 'Tricep Pushdowns', sets: '3 sets x 10-12 reps' },
+                            { name: 'Overhead Tricep Extension', sets: '3 sets x 10-12 reps' }
+                        ]
+                    },
+                    {
+                        name: 'Day 2: Back & Biceps',
+                        focus: 'Back, Biceps',
+                        duration: '60-75 minutes',
+                        exercises: [
+                            { name: 'Deadlifts', sets: '4 sets x 6-8 reps' },
+                            { name: 'Pull-ups/Lat Pulldowns', sets: '4 sets x 8-10 reps' },
+                            { name: 'Barbell Rows', sets: '3 sets x 8-10 reps' },
+                            { name: 'Seated Cable Rows', sets: '3 sets x 10-12 reps' },
+                            { name: 'Barbell Curls', sets: '3 sets x 8-10 reps' },
+                            { name: 'Hammer Curls', sets: '3 sets x 10-12 reps' },
+                            { name: 'Face Pulls', sets: '3 sets x 12-15 reps' }
+                        ]
+                    },
+                    {
+                        name: 'Day 3: Legs',
+                        focus: 'Quads, Hamstrings, Glutes, Calves',
+                        duration: '60-75 minutes',
+                        exercises: [
+                            { name: 'Back Squats', sets: '4 sets x 6-8 reps' },
+                            { name: 'Romanian Deadlifts', sets: '3 sets x 8-10 reps' },
+                            { name: 'Leg Press', sets: '3 sets x 10-12 reps' },
+                            { name: 'Walking Lunges', sets: '3 sets x 10 reps each leg' },
+                            { name: 'Leg Curls', sets: '3 sets x 10-12 reps' },
+                            { name: 'Standing Calf Raises', sets: '4 sets x 12-15 reps' }
+                        ]
+                    },
+                    {
+                        name: 'Day 4: Shoulders & Abs',
+                        focus: 'Delts, Core',
+                        duration: '60 minutes',
+                        exercises: [
+                            { name: 'Overhead Press', sets: '4 sets x 6-8 reps' },
+                            { name: 'Dumbbell Lateral Raises', sets: '4 sets x 12-15 reps' },
+                            { name: 'Rear Delt Flyes', sets: '3 sets x 12-15 reps' },
+                            { name: 'Upright Rows', sets: '3 sets x 10-12 reps' },
+                            { name: 'Plank', sets: '3 sets x 60 seconds' },
+                            { name: 'Hanging Leg Raises', sets: '3 sets x 10-15 reps' }
+                        ]
+                    },
+                    {
+                        name: 'Day 5: Full Body Hypertrophy',
+                        focus: 'Compound + accessory work',
+                        duration: '60-70 minutes',
+                        exercises: [
+                            { name: 'Incline Dumbbell Bench', sets: '3 sets x 8-12 reps' },
+                            { name: 'Seated Cable Row', sets: '3 sets x 10-12 reps' },
+                            { name: 'Bulgarian Split Squat', sets: '3 sets x 8-10 reps each leg' },
+                            { name: 'Skull Crushers', sets: '3 sets x 10-12 reps' },
+                            { name: 'Alternating DB Curls', sets: '3 sets x 10-12 reps' },
+                            { name: 'Farmer’s Carry', sets: '3 x 30-40 meters' }
+                        ]
+                    }
+                ],
+                'advanced-muscle-gain': [
+                    {   // Day 1
+                        name: 'Push (Heavy)',
+                        focus: 'Chest, Shoulders, Triceps',
+                        duration: '70-85 minutes',
+                        exercises: [
+                            { name: 'Bench Press', sets: '5 sets x 3-5 reps' },
+                            { name: 'Overhead Press', sets: '4 sets x 4-6 reps' },
+                            { name: 'Weighted Dips', sets: '4 sets x 6-8 reps' },
+                            { name: 'Incline DB Press', sets: '3 sets x 8-10 reps' },
+                            { name: 'Tricep Rope Pushdown', sets: '3 sets x 10-12 reps' }
+                        ]
+                    },
+                    {   // Day 2
+                        name: 'Pull (Heavy)',
+                        focus: 'Back, Biceps',
+                        duration: '70-85 minutes',
+                        exercises: [
+                            { name: 'Conventional Deadlift', sets: '5 sets x 3-5 reps' },
+                            { name: 'Weighted Pull-ups', sets: '4 sets x 5-8 reps' },
+                            { name: 'Barbell Row', sets: '4 sets x 6-8 reps' },
+                            { name: 'Chest Supported Row', sets: '3 sets x 8-10 reps' },
+                            { name: 'Barbell Curl', sets: '3 sets x 8-10 reps' }
+                        ]
+                    },
+                    {   // Day 3
+                        name: 'Legs (Heavy)',
+                        focus: 'Quads, Hamstrings, Glutes',
+                        duration: '70-85 minutes',
+                        exercises: [
+                            { name: 'Back Squat', sets: '5 sets x 3-5 reps' },
+                            { name: 'Front Squat', sets: '3 sets x 5-7 reps' },
+                            { name: 'Romanian Deadlift', sets: '4 sets x 6-8 reps' },
+                            { name: 'Calf Raises', sets: '4 sets x 12-15 reps' }
+                        ]
+                    },
+                    {   // Day 4
+                        name: 'Push (Volume)',
+                        focus: 'Chest, Shoulders, Triceps',
+                        duration: '70-85 minutes',
+                        exercises: [
+                            { name: 'Incline Bench Press', sets: '4 sets x 8-10 reps' },
+                            { name: 'DB Shoulder Press', sets: '4 sets x 10-12 reps' },
+                            { name: 'Cable Flyes', sets: '3 sets x 12-15 reps' },
+                            { name: 'Lateral Raises', sets: '4 sets x 12-15 reps' },
+                            { name: 'Overhead Tricep Extension', sets: '3 sets x 12-15 reps' }
+                        ]
+                    },
+                    {   // Day 5
+                        name: 'Pull (Volume)',
+                        focus: 'Back, Biceps',
+                        duration: '70-85 minutes',
+                        exercises: [
+                            { name: 'Lat Pulldown', sets: '4 sets x 10-12 reps' },
+                            { name: 'Cable Row', sets: '4 sets x 10-12 reps' },
+                            { name: 'Single-Arm DB Row', sets: '3 sets x 10-12 reps each' },
+                            { name: 'Face Pulls', sets: '3 sets x 12-15 reps' },
+                            { name: 'Incline DB Curl', sets: '3 sets x 10-12 reps' }
+                        ]
+                    },
+                    {   // Day 6
+                        name: 'Legs (Volume) + Core',
+                        focus: 'Quads, Hamstrings, Glutes, Core',
+                        duration: '70-85 minutes',
+                        exercises: [
+                            { name: 'Leg Press', sets: '4 sets x 10-12 reps' },
+                            { name: 'Walking Lunges', sets: '3 sets x 12 steps each leg' },
+                            { name: 'Leg Curl', sets: '3 sets x 12-15 reps' },
+                            { name: 'Seated Calf Raise', sets: '4 sets x 12-15 reps' },
+                            { name: 'Weighted Plank', sets: '3 sets x 45-60 seconds' }
+                        ]
+                    }
+                ],
+                'beginner-lean-bulk': [
+                    {
+                        name: 'Day 1: Full Body A',
+                        focus: 'Compound focus',
+                        duration: '50-60 minutes',
+                        exercises: [
+                            { name: 'Back Squat', sets: '3 sets x 5-8 reps' },
+                            { name: 'Bench Press', sets: '3 sets x 5-8 reps' },
+                            { name: 'Barbell Row', sets: '3 sets x 8-10 reps' },
+                            { name: 'DB Shoulder Press', sets: '2 sets x 10-12 reps' },
+                            { name: 'Plank', sets: '3 sets x 30-45 seconds' }
+                        ]
+                    },
+                    {
+                        name: 'Day 2: Full Body B',
+                        focus: 'Compound focus',
+                        duration: '50-60 minutes',
+                        exercises: [
+                            { name: 'Deadlift', sets: '3 sets x 3-5 reps' },
+                            { name: 'Incline DB Press', sets: '3 sets x 8-10 reps' },
+                            { name: 'Lat Pulldown/Pull-ups', sets: '3 sets x 6-10 reps' },
+                            { name: 'Lunges', sets: '3 sets x 10 reps each leg' },
+                            { name: 'Hanging Knee Raise', sets: '3 sets x 10-15 reps' }
+                        ]
+                    },
+                    {
+                        name: 'Day 3: Hypertrophy Accessories',
+                        focus: 'Arms, delts, calves, core',
+                        duration: '45-55 minutes',
+                        exercises: [
+                            { name: 'Lateral Raises', sets: '3 sets x 12-15 reps' },
+                            { name: 'Cable Flyes', sets: '3 sets x 12-15 reps' },
+                            { name: 'EZ-Bar Curl', sets: '3 sets x 10-12 reps' },
+                            { name: 'Tricep Rope Pushdown', sets: '3 sets x 10-12 reps' },
+                            { name: 'Standing Calf Raise', sets: '4 sets x 12-15 reps' }
+                        ]
+                    }
+                ],
+                'beginner-maintenance': [
+                    {
+                        name: 'Day 1: Full Body',
+                        focus: 'Balanced strength',
+                        duration: '45-60 minutes',
+                        exercises: [
+                            { name: 'Goblet Squat', sets: '3 sets x 10-12 reps' },
+                            { name: 'DB Bench Press', sets: '3 sets x 8-12 reps' },
+                            { name: 'Lat Pulldown', sets: '3 sets x 8-12 reps' },
+                            { name: 'Hip Hinge (RDL)', sets: '3 sets x 8-12 reps' },
+                            { name: 'Plank', sets: '3 sets x 30-45 seconds' }
+                        ]
+                    },
+                    {
+                        name: 'Day 2: Conditioning',
+                        focus: 'Cardio + core',
+                        duration: '40-50 minutes',
+                        exercises: [
+                            { name: 'Rowing or Jog', sets: '25-30 minutes steady' },
+                            { name: 'Mountain Climbers', sets: '3 sets x 30 seconds' },
+                            { name: 'Russian Twists', sets: '3 sets x 20 reps' },
+                            { name: 'Side Plank', sets: '3 sets x 30 seconds each side' }
+                        ]
+                    },
+                    {
+                        name: 'Day 3: Upper/Lower',
+                        focus: 'Technique & mobility',
+                        duration: '45-55 minutes',
+                        exercises: [
+                            { name: 'Leg Press', sets: '3 sets x 10-12 reps' },
+                            { name: 'Seated Cable Row', sets: '3 sets x 10-12 reps' },
+                            { name: 'DB Shoulder Press', sets: '3 sets x 10-12 reps' },
+                            { name: 'Mobility Work', sets: '10 minutes (hips/shoulders)' }
+                        ]
+                    }
+                ],
+                'beginner-endurance': [
+                    {
+                        name: 'Day 1: Cardio Intervals',
+                        focus: 'VO2 & stamina',
+                        duration: '40-50 minutes',
+                        exercises: [
+                            { name: 'Bike/Treadmill Intervals', sets: '10 rounds: 1 min hard / 1.5 min easy' },
+                            { name: 'Core Circuit', sets: '3 rounds: plank 45s, bird-dog 10/side, dead bug 10/side' }
+                        ]
+                    },
+                    {
+                        name: 'Day 2: Full Body Circuit',
+                        focus: 'Conditioning',
+                        duration: '35-45 minutes',
+                        exercises: [
+                            { name: 'Circuit x 4 rounds', sets: 'KB swings 15, Push-ups 10, Air squats 20, Row 250m, Rest 60-90s' }
+                        ]
+                    },
+                    {
+                        name: 'Day 3: Long Easy Cardio',
+                        focus: 'Aerobic base',
+                        duration: '45-60 minutes',
+                        exercises: [
+                            { name: 'Jog/Row/Bike', sets: 'Zone 2 steady state' },
+                            { name: 'Mobility', sets: '10 minutes full-body' }
+                        ]
+                    }
+                ]
+            };
+
+            const key = `${experience}-${goal}`;
+            if (workouts[key]) return workouts[key];
+
+            // Fallbacks by goal and experience
+            if (experience === 'beginner') {
+                if (goal === 'lean-bulk' || goal === 'muscle-gain' || goal === 'strength') return workouts['beginner-lean-bulk'];
+                if (goal === 'maintenance') return workouts['beginner-maintenance'];
+                if (goal === 'endurance') return workouts['beginner-endurance'];
+                return workouts['beginner-weight-loss'];
+            }
+
+            if (experience === 'advanced') {
+                if (goal === 'muscle-gain' || goal === 'lean-bulk' || goal === 'strength') return workouts['advanced-muscle-gain'];
+                // Otherwise adapt the intermediate bulk plan
+                return workouts['intermediate-lean-bulk'];
+            }
+
+            // Intermediate generic fallback
+            return workouts['intermediate-lean-bulk'];
+        }
+
+        function getGoalDescription(goal) {
+            switch (goal) {
+                case 'weight-loss': return 'Reduce body fat while maintaining muscle mass';
+                case 'lean-bulk': return 'Build muscle with minimal fat gain (slow surplus)';
+                case 'muscle-gain': return 'Maximize muscle growth with a higher calorie surplus';
+                case 'maintenance': return 'Maintain current weight and improve fitness balance';
+                case 'strength': return 'Improve maximal strength on key lifts';
+                case 'endurance': return 'Increase cardiovascular endurance and stamina';
+                default: return 'General health and fitness';
+            }
+        }
+    </script>
+</body>
+</html>
